@@ -22,7 +22,7 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Tests
+      - name: Unit tests
         run: npm run test-ci
 
   tests-e2e:
@@ -45,7 +45,7 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Tests
+      - name: E2e tests
         run: npm run e2e
 
   lint:
@@ -68,5 +68,5 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Tests
+      - name: Lint
         run: npm run lint
