@@ -12,6 +12,9 @@ jobs:
     outputs:
       link: ${{ steps.checks.outputs.link }}
     steps:
+      - name: Get source code
+        uses: actions/checkout@v3
+
       - name: Make checks
         id: checks
         uses: ./.github/workflows/pull-request.yml
@@ -49,6 +52,10 @@ jobs:
   
   release:
     needs: [tests, build]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     steps:
       - name: Generate changelog
