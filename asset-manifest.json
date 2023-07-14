@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/yandex-homework-infrastructure/static/css/main.bca2b5ee.css",
+    "main.js": "/yandex-homework-infrastructure/static/js/main.d3d3ecf9.js",
+    "index.html": "/yandex-homework-infrastructure/index.html",
+    "main.bca2b5ee.css.map": "/yandex-homework-infrastructure/static/css/main.bca2b5ee.css.map",
+    "main.d3d3ecf9.js.map": "/yandex-homework-infrastructure/static/js/main.d3d3ecf9.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bca2b5ee.css",
+    "static/js/main.d3d3ecf9.js"
+  ]
+}
