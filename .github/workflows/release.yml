@@ -41,8 +41,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
   
-  release:
+  registry:
+    name: Save to registry
     needs: [tests, build]
+    outputs:
+      changelog: ${{ steps.changelog.outputs.changelog }}
+
     if: |
       always() &&
       !contains(needs.*.result, 'cancelled')
@@ -58,6 +62,7 @@ jobs:
           mytoken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create an Issue
+        id: issue
         uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -67,3 +72,43 @@ jobs:
         with:
           update_existing: true
           search_existing: all
+      
+      - name: Close created issue
+        run: gh issue close ${{ steps.issue.outputs.number }}
+
+  release:
+    name: Create release on Github
+    needs: [registry]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+
+      - name: Cache NPM deps
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Install zip
+        run: sudo apt-get install zip -y
+
+      - name: Zip build folder
+        run: zip -r build.zip ./build
+        
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: ${{ needs.registry.outputs.changelog }}
+          files: build.zip
+          name: Release ${{ github.ref_name }}
+        env:
+          GITHUB_REPOSITORY: my_gh_org/my_gh_repo
