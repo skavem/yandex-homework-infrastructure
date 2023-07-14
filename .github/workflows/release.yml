@@ -74,6 +74,8 @@ jobs:
           search_existing: all
       
       - name: Close created issue
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh issue close ${{ steps.issue.outputs.number }}
 
   release:
