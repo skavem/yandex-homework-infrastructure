@@ -83,6 +83,9 @@ jobs:
     needs: [registry]
     runs-on: ubuntu-latest
     steps:
+      - name: Get source code
+        uses: actions/checkout@v3
+        
       - name: Setup NodeJS
         uses: actions/setup-node@v3
         with:
