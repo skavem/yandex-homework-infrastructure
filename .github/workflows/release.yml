@@ -7,17 +7,8 @@ on:
 
 jobs:
   tests:
-    name: Checks 
-    runs-on: ubuntu-latest
-    outputs:
-      link: ${{ steps.checks.outputs.link }}
-    steps:
-      - name: Get source code
-        uses: actions/checkout@v3
-
-      - name: Make checks
-        id: checks
-        uses: ./.github/workflows/pull-request.yml
+    name: Make checks 
+    uses: ./.github/workflows/pull-request.yml
 
   build:
     needs: [tests]
@@ -54,7 +45,6 @@ jobs:
     needs: [tests, build]
     if: |
       always() &&
-      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     steps:
@@ -70,7 +60,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.ref_name }} 
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
-          CHECKS_LINK: $${{ needs.tests.outputs.link }}
+          CHECKS_LINK: ${{ needs.tests.outputs.link }}
         with:
           update_existing: true
           search_existing: all
