@@ -115,5 +115,3 @@ jobs:
           body: ${{ needs.registry.outputs.changelog }}
           files: build.zip
           name: Release ${{ github.ref_name }}
-        env:
-          GITHUB_REPOSITORY: my_gh_org/my_gh_repo
