@@ -1,0 +1,34 @@
+name: Release on tag
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v3
+
+      - name: Make checks
+        id: checks
+        uses: ./.github/workflows/pull-request.yml
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.1.0
+        with:
+          mytoken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create an Issue
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.ref_name }} 
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
+          CHECKS_LINK: $${{ steps.checks.outputs.link }}
+        with:
+          update_existing: true
+          search_existing: all

@@ -2,6 +2,11 @@ name: Pull Request Checks
 on:
   pull_request:
     branches: [master]
+  workflow_call:
+    outputs:
+      link:
+        description: Link to this checks
+        value: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
 jobs:
   tests-unit:
