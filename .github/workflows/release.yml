@@ -6,16 +6,51 @@ on:
       - v*
 
 jobs:
-  test:
+  tests:
+    name: Checks 
+    runs-on: ubuntu-latest
+    outputs:
+      link: ${{ steps.checks.outputs.link }}
+    steps:
+      - name: Make checks
+        id: checks
+        uses: ./.github/workflows/pull-request.yml
+
+  build:
+    needs: [tests]
+    name: Build and deploy
     runs-on: ubuntu-latest
     steps:
       - name: Get source code
         uses: actions/checkout@v3
 
-      - name: Make checks
-        id: checks
-        uses: ./.github/workflows/pull-request.yml
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
 
+      - name: Cache NPM deps
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+  
+  release:
+    needs: [tests, build]
+    runs-on: ubuntu-latest
+    steps:
       - name: Generate changelog
         id: changelog
         uses: metcalfc/changelog-generator@v4.1.0
@@ -28,7 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.ref_name }} 
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
-          CHECKS_LINK: $${{ steps.checks.outputs.link }}
+          CHECKS_LINK: $${{ needs.tests.outputs.link }}
         with:
           update_existing: true
           search_existing: all
